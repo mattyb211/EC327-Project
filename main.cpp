@@ -1,80 +1,7 @@
-
-// -I/usr/local/Cellar/sfml/2.5.1_2/include -L/usr/local/Cellar/sfml/2.5.1_2/lib -lsfml-graphics -lsfml-system -lsfml-window -lsfml-audio -lsfml-window
-
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode(1000, 1000), "SFML works!");
-    sf::CircleShape shape(100.f);
-    sf::Vector2f circlePos(500,500);
-    shape.setPosition(circlePos);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        if (!countdown.isFinished()) {
-        // Update countdown text and draw it
-        int remainingSeconds = static_cast<int>(countdown.getRemainingTime().asSeconds());
-        countdownText.setString(std::to_string(remainingSeconds));
-        window.draw(countdownText);
-    } else {
-        // Game logic goes here
-        // ...
-        Scoreboard.Player1Score++;
-        Scoreboard.Player2Score++;
-        Scoreboard.update();
-        Scoreboard.draw(window);
-    }
-
-        if (circlePos.x >= 0) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
-                shape.move(sf::Vector2f(-0.25,0));
-                circlePos.x -= 0.25;
-            } 
-            shape.setPosition(circlePos);
-        }
-
-        if (circlePos.x <=800) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
-                shape.move(sf::Vector2f(0.25,0));
-                circlePos.x += 0.25;
-            } 
-            shape.setPosition(circlePos);
-        }
-        
-        if (circlePos.y >= 0) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) {
-                shape.move(sf::Vector2f(0,-0.25));
-                circlePos.y -= 0.25;
-            } 
-            shape.setPosition(circlePos);
-        }
-        
-        if (circlePos.y <= 800) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) {
-                shape.move(sf::Vector2f(0,0.25));
-                circlePos.y += 0.25;
-            }
-            shape.setPosition(circlePos);
-        }
-        
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
-
-    return 0;
-}
-
+// Define the Timer class before it's used
 class Timer {
     sf::Clock clock;
     sf::Time targetTime;
@@ -104,14 +31,6 @@ public:
         return remaining;
     }
 };
-
-
-Timer countdown(sf::seconds(3)); // 3 second countdown
-sf::Text countdownText;
-countdownText.setFont(font); // Assuming you have a loaded sf::Font named font
-countdownText.setCharacterSize(32);
-countdownText.setFillColor(sf::Color::White);
-countdownText.setPosition(window.getSize().x / 2, window.getSize().y / 2);
 
 struct Scoreboard {
     int Player1Score = 0;
@@ -150,3 +69,55 @@ struct Scoreboard {
         window.draw(Player2Text);
     }
 };
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode(1000, 1000), "SFML works!");
+    sf::CircleShape shape(100.f);
+    sf::Vector2f circlePos(500,500);
+    shape.setPosition(circlePos);
+    shape.setFillColor(sf::Color::Green);
+
+    Scoreboard scoreboard;
+    Timer countdown(sf::seconds(3)); // 3 second countdown
+
+    sf::Font font;
+    if (!font.loadFromFile("Arial.ttf")) {
+        std::cerr << "Failed to load font" << std::endl;
+        return -1;
+    }
+
+    sf::Text countdownText;
+    countdownText.setFont(font);
+    countdownText.setCharacterSize(32);
+    countdownText.setFillColor(sf::Color::White);
+    countdownText.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        if (!countdown.isFinished()) {
+            // Update countdown text and draw it
+            int remainingSeconds = static_cast<int>(countdown.getRemainingTime().asSeconds());
+            countdownText.setString(std::to_string(remainingSeconds));
+            window.clear();
+            window.draw(countdownText);
+        } else {
+            // Game logic goes here
+            // ...
+            scoreboard.Player1Score++;
+            scoreboard.Player2Score++;
+            scoreboard.update();
+            window.clear();
+            scoreboard.draw(window);
+        }
+
+        window.draw(shape);
+        window.display();
+    }
+
+   return 0; 
+}
