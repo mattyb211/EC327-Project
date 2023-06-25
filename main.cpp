@@ -116,6 +116,9 @@ int main() {
         }
 
         window.draw(shape);
+        for (int i=0; i<l; i++) {
+            window.draw(*obstacles[i]);
+        }
         window.display();
     }
 
