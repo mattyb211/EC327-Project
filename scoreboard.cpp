@@ -2,45 +2,47 @@
 #include <iostream>
 
 struct Scoreboard {
-    int redScore = 0;
-    int blueScore = 0;
+    int Player1Score = 0;
+    int Player2Score = 0;
 
     sf::Font font;
-    sf::Text redScoreText;
-    sf::Text blueScoreText;
+    sf::Text Player1Text;
+    sf::Text Player2Text;
 
     Scoreboard() {
-        if (!font.loadFromFile("Arial.ttf")) {  // Or any other font
-            std::cout << "Could not load font" << std::endl;
+        if (!font.loadFromFile("Arial.ttf")) {
+            std::cerr << "Failed to load font" << std::endl;
             return;
         }
 
-        redScoreText.setFont(font);
-        redScoreText.setCharacterSize(24);
-        redScoreText.setFillColor(sf::Color::Red);
-        redScoreText.setPosition(10, 10);
+        Player1Text.setFont(font);
+        Player1Text.setCharacterSize(24);
+        Player1Text.setFillColor(sf::Color::Red);
+        Player1Text.setPosition(10, 10);
 
-        blueScoreText.setFont(font);
-        blueScoreText.setCharacterSize(24);
-        blueScoreText.setFillColor(sf::Color::Blue);
-        blueScoreText.setPosition(10, 50);
+        Player2Text.setFont(font);
+        Player2Text.setCharacterSize(24);
+        Player2Text.setFillColor(sf::Color::Blue);
+        Player2Text.setPosition(10, 50);
+
+        update();
     }
 
     void update() {
-        redScoreText.setString("Red: " + std::to_string(redScore));
-        blueScoreText.setString("Blue: " + std::to_string(blueScore));
+        Player1Text.setString("Player1: " + std::to_string(Player1Score));
+        Player2Text.setString("Player2: " + std::to_string(Player2Score));
     }
 
     void draw(sf::RenderWindow &window) {
-        window.draw(redScoreText);
-        window.draw(blueScoreText);
+        window.draw(Player1Text);
+        window.draw(Player2Text);
     }
 };
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Tank Game");
 
-    Scoreboard scoreboard; // Creating an instance of Scoreboard
+    Scoreboard scoreboard; 
 
     while (window.isOpen()) {
         sf::Event event;
@@ -48,6 +50,10 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+
+        // For demonstration, incrementing scores every frame
+        scoreboard.Player1Score++;
+        scoreboard.Player2Score++;
 
         scoreboard.update();
         window.clear();
