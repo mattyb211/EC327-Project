@@ -249,6 +249,43 @@ int main()
             }
         }
 
+        sf::Clock countdownClock;
+        bool countdownRunning = true;
+        bool hereWeGoDisplayed = false;
+
+        sf::Text countdownText;
+        countdownText.setFont(font);
+        countdownText.setCharacterSize(32);
+        countdownText.setFillColor(sf::Color::White);
+        countdownText.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+
+        if (countdownRunning) {
+            sf::Time elapsed = countdownClock.getElapsedTime();
+
+            // Display "Here we go" for the first 2 seconds
+            if (elapsed.asSeconds() < 2) {
+                countdownText.setString("Here we go!");
+                hereWeGoDisplayed = true;
+            }
+            // Display the countdown from 3 to 1
+            else if (elapsed.asSeconds() < 5) {
+                if (!hereWeGoDisplayed) {
+                    countdownText.setString("3");
+                    hereWeGoDisplayed = true;
+                }
+                else if (elapsed.asSeconds() > 3 && elapsed.asSeconds() < 4) {
+                    countdownText.setString("2");
+                }
+                else if (elapsed.asSeconds() > 4 && elapsed.asSeconds() < 5) {
+                    countdownText.setString("1");
+                }
+            }
+            // Stop the countdown and start the game
+            else {
+                countdownRunning = false;
+            }
+        }
+
         window.clear();
         for (int i=0; i<l1; i++) {
             window.draw(*tanks[i]);
@@ -266,12 +303,6 @@ int main()
         std::cerr << "Failed to load font" << std::endl;
         return -1;
         }
-
-        sf::Text countdownText;
-        countdownText.setFont(font);
-        countdownText.setCharacterSize(32);
-        countdownText.setFillColor(sf::Color::White);
-        countdownText.setPosition(window.getSize().x / 2, window.getSize().y / 2);
 
         if (!countdown.isFinished()) {
             // Update countdown text and draw it
