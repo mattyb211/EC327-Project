@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-int main()
+int main($ git pull)
 {
     sf::RenderWindow window(sf::VideoMode(1000, 1000), "SFML works!");
     sf::CircleShape shape(100.f);
