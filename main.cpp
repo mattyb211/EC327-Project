@@ -2,8 +2,13 @@
 // -I/usr/local/Cellar/sfml/2.5.1_2/include -L/usr/local/Cellar/sfml/2.5.1_2/lib -lsfml-graphics -lsfml-system -lsfml-window -lsfml-audio -lsfml-window
 
 #include <SFML/Graphics.hpp>
-#include <vector>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
 #include <iostream>
+#include <sstream>
+#include <list>
+
+using namespace std;
 
 class Timer {
     sf::Clock clock;
@@ -34,6 +39,7 @@ public:
         return remaining;
     }
 };
+
 
 struct Scoreboard {
     int Player1Score = 0;
@@ -81,13 +87,56 @@ int main()
     const unsigned WINDOW_HEIGHT = 1000;
     const float grid = 100;
 
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+    int countdownValue = 3;
+    bool countdownRunning = false;
 
+    sf::RenderWindow countdownWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Countdown");
     sf::Font font;
     if (!font.loadFromFile("Arial.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
         return -1;
     }
+    sf::Text countdownText;
+    countdownText.setFont(font);
+    countdownText.setCharacterSize(24);
+    countdownText.setFillColor(sf::Color::White);
+    countdownText.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+
+    Timer countdown(sf::seconds(4)); // 4 second countdown
+    Timer finalCountdown(sf::seconds(1)); // 1 second final message
+
+    // Countdown loop
+    while (countdownWindow.isOpen()) {
+        sf::Event event;
+        while (countdownWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                countdownWindow.close();
+                return 0;  // Close the program if countdown window is closed
+            }
+        }
+
+        if (!countdown.isFinished()) {
+            // Update countdown text and draw it
+            int remainingSeconds = static_cast<int>(countdown.getRemainingTime().asSeconds());
+            countdownText.setString(std::to_string(remainingSeconds));
+        } else {
+            if (!finalCountdown.isFinished()) {
+                // Show final message
+                countdownText.setString("Here we go!");
+            } else {
+                countdownWindow.close();
+                break;  // Break out of the countdown loop
+            }
+        }
+
+        countdownWindow.clear();
+        countdownWindow.draw(countdownText);
+        countdownWindow.display();
+    }
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+    
+
+
 
     // Make 2 circles (will be tanks)
     std::vector<sf::Shape*> tanks;
@@ -127,6 +176,8 @@ int main()
     rect4->setPosition(rect4pos);
     obstacles.push_back(rect4);
 
+    Scoreboard scoreboard;
+
     sf::Texture brickwall;
     brickwall.loadFromFile("brickwall.jpeg");
     
@@ -149,7 +200,6 @@ int main()
     bool upOpen2 = true;
     bool downOpen2 = true;
     
-
     while (window.isOpen())
     {
         sf::Event event;
@@ -158,7 +208,7 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-
+ 
         // Check if Tank 1 is allowed to move
         if ( !(tank1pos.x >= 0) ) {
             leftOpen1 = false;
@@ -299,9 +349,10 @@ int main()
         for (int i=0; i<l2; i++) {
             window.draw(*obstacles[i]);
         }
+        scoreboard.draw(window);
         window.display();
 
-        Scoreboard scoreboard;
+
         Timer countdown(sf::seconds(3)); // 3 second countdown
 
         sf::Font font;
