@@ -83,6 +83,12 @@ int main()
 
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
 
+    sf::Font font;
+    if (!font.loadFromFile("Arial.ttf")) {
+        std::cerr << "Failed to load font" << std::endl;
+        return -1;
+    }
+
     // Make 2 circles (will be tanks)
     std::vector<sf::Shape*> tanks;
 
