@@ -40,14 +40,14 @@ int main() {
     gun.setOrigin(0.f, gun.getSize().y / 2.f); // Set the origin to the center of the gun
 
     std::vector<sf::Vector2f> tankPositions(8);
-    tankPositions[0] = sf::Vector2f(200.f, 100.f);
-    tankPositions[1] = sf::Vector2f(400.f, 100.f);
-    tankPositions[2] = sf::Vector2f(600.f, 100.f);
-    tankPositions[3] = sf::Vector2f(800.f, 100.f);
-    tankPositions[4] = sf::Vector2f(200.f, 400.f);
-    tankPositions[5] = sf::Vector2f(400.f, 400.f);
-    tankPositions[6] = sf::Vector2f(600.f, 400.f);
-    tankPositions[7] = sf::Vector2f(800.f, 400.f);
+    tankPositions[0] = sf::Vector2f(200.f, 200.f);
+    tankPositions[1] = sf::Vector2f(400.f, 200.f);
+    tankPositions[2] = sf::Vector2f(600.f, 200.f);
+    tankPositions[3] = sf::Vector2f(800.f, 200.f);
+    tankPositions[4] = sf::Vector2f(200.f, 600.f);
+    tankPositions[5] = sf::Vector2f(400.f, 600.f);
+    tankPositions[6] = sf::Vector2f(600.f, 600.f);
+    tankPositions[7] = sf::Vector2f(800.f, 600.f);
 
     std::vector<sf::Color> tankColorsPlayer1(8);
     tankColorsPlayer1[0] = sf::Color::Green;
@@ -86,10 +86,16 @@ int main() {
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 // Check if any tank was clicked
                 for (size_t i = 0; i < tankPositions.size(); ++i) {
-                    sf::FloatRect tankBounds = square.getGlobalBounds();
+                    sf::FloatRect tankBounds(
+                        tankPositions[i].x - tankWidth / 2.f,
+                        tankPositions[i].y - tankHeight / 2.f,
+                        tankWidth,
+                        tankHeight
+                    );
                     if (tankBounds.contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
                         selectedTanksPlayer1.push_back(i);
                         selectedTankColorPlayer1 = tankColorsPlayer1[i];
+                        std::cout << "Player 1 selected tank: " << i << std::endl;
                         break; // No need to check other tanks if one is already selected
                     }
                 }
@@ -101,11 +107,16 @@ int main() {
             else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 // Check if any tank was clicked
                 for (size_t i = 0; i < tankPositions.size(); ++i) {
-                    sf::FloatRect tankBounds = square.getGlobalBounds();
+                    sf::FloatRect tankBounds(
+                        tankPositions[i].x - tankWidth / 2.f,
+                        tankPositions[i].y - tankHeight / 2.f,
+                        tankWidth,
+                        tankHeight
+                    );
                     if (tankBounds.contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
                         selectedTanksPlayer2.push_back(i);
                         selectedTankColorPlayer2 = tankColorsPlayer2[i];
-
+                        std::cout << "Player 2 selected tank: " << i << std::endl;
                         break; // No need to check other tanks if one is already selected
                     }
                 }
@@ -183,18 +194,8 @@ int main() {
         window2.display();
     }
 
-    // Prompt Player 1 to choose a color
-    std::cout << "Player 1, select a color (1-8): ";
-    int player1Choice;
-    std::cin >> player1Choice;
-    sf::Color player1Color = tankColorsPlayer1[player1Choice - 1];
-
-    // Prompt Player 2 to choose a color
-    std::cout << "Player 2, select a color (1-8): ";
-    int player2Choice;
-    std::cin >> player2Choice;
-    sf::Color player2Color = tankColorsPlayer2[player2Choice - 1];
-
     return 0;
 }
 
+//Please add text to bottom like "RED" "BLUE" and rotate text color and name based off of the slected tank color
+//Once the right color is selected close the window and save that specific tank so it can be inputted into the game
