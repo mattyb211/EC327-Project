@@ -1,0 +1,98 @@
+#include <SFML/Graphics.hpp>
+
+float x;
+float y;
+float xspeed;
+float yspeed;
+int collisionCount;
+
+void setup(sf::RenderWindow& window) {
+    window.create(sf::VideoMode(800, 600), "SFML Window");
+    x = 400;
+    y = 300;
+    xspeed = 0.08;
+    yspeed = 0.02;
+    collisionCount = 0;
+}
+
+void draw(sf::RenderWindow& window, sf::RectangleShape& barrier) {
+    window.clear(sf::Color::Black);
+
+    sf::CircleShape circle(30);
+    circle.setPosition(x, y);
+    circle.setFillColor(sf::Color::White);
+
+    // Calculate the changing position
+    float changingX = x + xspeed;
+    float changingY = y + yspeed;
+
+    // Check if the changing position collides with the barrier
+    if (changingX <= barrier.getPosition().x + barrier.getSize().x and
+        changingX + circle.getRadius() >= barrier.getPosition().x and
+        changingY <= barrier.getPosition().y + barrier.getSize().y and
+        changingY + circle.getRadius() >= barrier.getPosition().y) {
+        // Determine the direction of the collision
+        bool fromLeft = x + circle.getRadius() <= barrier.getPosition().x;
+        bool fromRight = x >= barrier.getPosition().x + barrier.getSize().x;
+        bool fromTop = y + circle.getRadius() <= barrier.getPosition().y;
+        bool fromBottom = y >= barrier.getPosition().y + barrier.getSize().y;
+
+        // Changing direction from barrier collision and direction
+        if (fromLeft || fromRight) {
+            xspeed *= -1;
+        }
+        if (fromTop || fromBottom) {
+            yspeed *= -1;
+        }
+
+        collisionCount++;
+        if (collisionCount >= 4) {
+            circle.setFillColor(sf::Color::Transparent);
+            window.close();
+        }
+    } else {
+        // Update positions with boundary checks
+        x = changingX;
+        y = changingY;
+
+        if (x <= 0) {
+            xspeed = std::abs(xspeed); // Speed positive
+            x = 0;
+        } else if (x >= window.getSize().x - circle.getRadius() * 2) {
+            xspeed = -std::abs(xspeed); // Speed negative
+            x = window.getSize().x - circle.getRadius() * 2;
+        }
+
+        if (y <= 0) {
+            yspeed = std::abs(yspeed);
+            y = 0;
+        } else if (y >= window.getSize().y - circle.getRadius() * 2) {
+            yspeed = -std::abs(yspeed);
+            y = window.getSize().y - circle.getRadius() * 2;
+        }
+    }
+
+    window.draw(circle);
+    window.draw(barrier);
+    window.display();
+}
+
+int main() {
+    sf::RenderWindow window;
+    setup(window);
+
+    sf::RectangleShape barrier(sf::Vector2f(200, 20));
+    barrier.setPosition(300, 400);
+    barrier.setFillColor(sf::Color::Red);
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+        draw(window, barrier);
+    }
+
+    return 0;
+}
