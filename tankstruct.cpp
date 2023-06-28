@@ -1,137 +1,200 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <map>
-#include <string>
+#include <vector>
 
 int main() {
-    sf::RenderWindow window1(sf::VideoMode(800, 600), "Player 1");
-    sf::RenderWindow window2(sf::VideoMode(800, 600), "Player 2");
+    sf::RenderWindow window1(sf::VideoMode(1000, 1000), "Player 1 Tanks");
+    sf::RenderWindow window2(sf::VideoMode(1000, 1000), "Player 2 Tanks");
 
-    float cornerRadius = 20.f;
-    float tankWidth = 200.f;
-    float tankHeight = 200.f;
-    float circleRadius = 50.f;
+    float tanksize = 100.f; // Adjust this value as needed
 
     // Increase the point count to create rounded corners
-    sf::ConvexShape square1;
-    square1.setPointCount(8);
+    sf::ConvexShape square;
+    square.setPointCount(8); // Increase the point count to achieve smoother corners
 
-    sf::ConvexShape square2;
-    square2.setPointCount(8);
+    // Set the positions of the points to create a rounded square
+    float cornerRadius = tanksize * 0.1f; // Adjust the corner radius as desired
+    float tankWidth = tanksize * 2.f; // Adjust the tank width as desired
+    float tankHeight = tanksize * 1.5f; // Adjust the tank height as desired
 
-    // Set the positions of the points to create a rounded square for P1,P2
-    square1.setPoint(0, sf::Vector2f(cornerRadius, 0.f));
-    square1.setPoint(1, sf::Vector2f(tankWidth - cornerRadius, 0.f));
-    square1.setPoint(2, sf::Vector2f(tankWidth, cornerRadius));
-    square1.setPoint(3, sf::Vector2f(tankWidth, tankHeight - cornerRadius));
-    square1.setPoint(4, sf::Vector2f(tankWidth - cornerRadius, tankHeight));
-    square1.setPoint(5, sf::Vector2f(cornerRadius, tankHeight));
-    square1.setPoint(6, sf::Vector2f(0.f, tankHeight - cornerRadius));
-    square1.setPoint(7, sf::Vector2f(0.f, cornerRadius));
-    ////////////////////////////////////////////////////////////////////////
-    square2.setPoint(0, sf::Vector2f(cornerRadius, 0.f));
-    square2.setPoint(1, sf::Vector2f(tankWidth - cornerRadius, 0.f));
-    square2.setPoint(2, sf::Vector2f(tankWidth, cornerRadius));
-    square2.setPoint(3, sf::Vector2f(tankWidth, tankHeight - cornerRadius));
-    square2.setPoint(4, sf::Vector2f(tankWidth - cornerRadius, tankHeight));
-    square2.setPoint(5, sf::Vector2f(cornerRadius, tankHeight));
-    square2.setPoint(6, sf::Vector2f(0.f, tankHeight - cornerRadius));
-    square2.setPoint(7, sf::Vector2f(0.f, cornerRadius));
+    square.setPoint(0, sf::Vector2f(cornerRadius, 0.f));
+    square.setPoint(1, sf::Vector2f(tankWidth - cornerRadius, 0.f));
+    square.setPoint(2, sf::Vector2f(tankWidth, cornerRadius));
+    square.setPoint(3, sf::Vector2f(tankWidth, tankHeight - cornerRadius));
+    square.setPoint(4, sf::Vector2f(tankWidth - cornerRadius, tankHeight));
+    square.setPoint(5, sf::Vector2f(cornerRadius, tankHeight));
+    square.setPoint(6, sf::Vector2f(0.f, tankHeight - cornerRadius));
+    square.setPoint(7, sf::Vector2f(0.f, cornerRadius));
 
-    // Tank Color
-    std::map<std::string, sf::Color> colorOptions;
-    colorOptions.insert(std::make_pair("red", sf::Color::Red));
-    colorOptions.insert(std::make_pair("blue", sf::Color::Blue));
-    colorOptions.insert(std::make_pair("green", sf::Color::Green));
-    colorOptions.insert(std::make_pair("purple", sf::Color(128, 0, 128)));
-    colorOptions.insert(std::make_pair("pink", sf::Color(255, 105, 180)));
-    colorOptions.insert(std::make_pair("yellow", sf::Color::Yellow));
-    colorOptions.insert(std::make_pair("rainbow", sf::Color::Magenta));
-    colorOptions.insert(std::make_pair("chrome", sf::Color(100, 149, 237)));
+    sf::Color tankOutlineColorPlayer1 = sf::Color::White;
+    sf::Color tankOutlineColorPlayer2 = sf::Color::Black;
+    square.setOutlineThickness(tanksize * 0.05f);
+    square.setOrigin(tankWidth / 2.f, tankHeight / 2.f); // Set the origin to the center of the tank
 
-    std::string selectedColor1, selectedColor2;
-    std::cout << "Available colors: red, blue, green, purple, pink, yellow, rainbow, chrome\n";
+    sf::CircleShape circle(tanksize * 0.35f);
+    circle.setOutlineThickness(tanksize * 0.05f);
+    circle.setOrigin(circle.getRadius(), circle.getRadius());
 
-    std::cout << "Enter the color of tank for Player 1: ";
-    std::cin >> selectedColor1;
-    sf::Color squareColor1 = colorOptions[selectedColor1];
-    sf::Color outlineColor1 = sf::Color::White;
-    square1.setFillColor(squareColor1);
-    square1.setOutlineThickness(5.f);
-    square1.setOutlineColor(outlineColor1);
+    sf::RectangleShape gun(sf::Vector2f(tanksize * 1.65f, tanksize * 0.30f));
+    gun.setOutlineThickness(tanksize * 0.02f);
+    gun.setOrigin(0.f, gun.getSize().y / 2.f); // Set the origin to the center of the gun
 
-    std::cout << "Enter the color of tank for Player 2: ";
-    std::cin >> selectedColor2;
-    sf::Color squareColor2 = colorOptions[selectedColor2];
-    sf::Color outlineColor2 = sf::Color::Black;
-    square2.setFillColor(squareColor2);
-    square2.setOutlineThickness(5.f);
-    square2.setOutlineColor(outlineColor2);
+    std::vector<sf::Vector2f> tankPositions(8);
+    tankPositions[0] = sf::Vector2f(200.f, 100.f);
+    tankPositions[1] = sf::Vector2f(400.f, 100.f);
+    tankPositions[2] = sf::Vector2f(600.f, 100.f);
+    tankPositions[3] = sf::Vector2f(800.f, 100.f);
+    tankPositions[4] = sf::Vector2f(200.f, 400.f);
+    tankPositions[5] = sf::Vector2f(400.f, 400.f);
+    tankPositions[6] = sf::Vector2f(600.f, 400.f);
+    tankPositions[7] = sf::Vector2f(800.f, 400.f);
 
-    sf::CircleShape circle1(circleRadius);
-    circle1.setFillColor(outlineColor1);
-    circle1.setOutlineThickness(5.f);
-    circle1.setOutlineColor(outlineColor1);
-    circle1.setOrigin(circleRadius, circleRadius);
+    std::vector<sf::Color> tankColorsPlayer1(8);
+    tankColorsPlayer1[0] = sf::Color::Green;
+    tankColorsPlayer1[1] = sf::Color::Red;
+    tankColorsPlayer1[2] = sf::Color::Cyan;
+    tankColorsPlayer1[3] = sf::Color(0, 0, 139);
+    tankColorsPlayer1[4] = sf::Color(255, 105, 180);
+    tankColorsPlayer1[5] = sf::Color(148, 0, 211);
+    tankColorsPlayer1[6] = sf::Color(255, 165, 0);
+    tankColorsPlayer1[7] = sf::Color(255, 247, 153);
 
-    sf::CircleShape circle2(circleRadius);
-    circle2.setFillColor(outlineColor2);
-    circle2.setOutlineThickness(5.f);
-    circle2.setOutlineColor(outlineColor2);
-    circle2.setOrigin(circleRadius, circleRadius);
+    std::vector<sf::Color> tankColorsPlayer2(8);
+    tankColorsPlayer2[0] = sf::Color::Red;
+    tankColorsPlayer2[1] = sf::Color::Green;
+    tankColorsPlayer2[2] = sf::Color::Cyan;
+    tankColorsPlayer2[3] = sf::Color(0, 0, 139);
+    tankColorsPlayer2[4] = sf::Color(255, 105, 180);
+    tankColorsPlayer2[5] = sf::Color(148, 0, 211);
+    tankColorsPlayer2[6] = sf::Color(255, 165, 0);
+    tankColorsPlayer2[7] = sf::Color(255, 247, 153);
 
-    sf::RectangleShape gun1(sf::Vector2f(175.f, 30.f));
-    gun1.setFillColor(squareColor1);
-    gun1.setOutlineThickness(2.f);
-    gun1.setOutlineColor(outlineColor1);
-    gun1.setOrigin(0.f, 15.f);
+    float tankRotation = 90.f; // Rotate tanks vertically
+    float rotationSpeed = 2.f; // Adjust the rotation speed as desired
 
-    sf::RectangleShape gun2(sf::Vector2f(175.f, 30.f));
-    gun2.setFillColor(squareColor2);
-    gun2.setOutlineThickness(2.f);
-    gun2.setOutlineColor(outlineColor2);
-    gun2.setOrigin(0.f, 15.f);
+    std::vector<int> selectedTanksPlayer1;
+    std::vector<int> selectedTanksPlayer2;
 
-//
-    while (window1.isOpen() and window2.isOpen()) {
+    sf::Color selectedTankColorPlayer1;
+    sf::Color selectedTankColorPlayer2;
+
+    while (window1.isOpen() || window2.isOpen()) {
         sf::Event event;
         while (window1.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window1.close();
+            else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                // Check if any tank was clicked
+                for (size_t i = 0; i < tankPositions.size(); ++i) {
+                    sf::FloatRect tankBounds = square.getGlobalBounds();
+                    if (tankBounds.contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+                        selectedTanksPlayer1.push_back(i);
+                        selectedTankColorPlayer1 = tankColorsPlayer1[i];
+                        break; // No need to check other tanks if one is already selected
+                    }
+                }
+            }
         }
-
         while (window2.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window2.close();
+            else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                // Check if any tank was clicked
+                for (size_t i = 0; i < tankPositions.size(); ++i) {
+                    sf::FloatRect tankBounds = square.getGlobalBounds();
+                    if (tankBounds.contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+                        selectedTanksPlayer2.push_back(i);
+                        selectedTankColorPlayer2 = tankColorsPlayer2[i];
+
+                        break; // No need to check other tanks if one is already selected
+                    }
+                }
+            }
         }
 
         window1.clear();
+
+        for (size_t i = 0; i < tankPositions.size(); ++i) {
+            square.setPosition(tankPositions[i]);
+            circle.setPosition(tankPositions[i]);
+            gun.setPosition(tankPositions[i]);
+
+            // Apply tank rotation
+            square.setRotation(tankRotation);
+            circle.setRotation(tankRotation);
+            gun.setRotation(tankRotation);
+
+            // Set tank color
+            if (std::find(selectedTanksPlayer1.begin(), selectedTanksPlayer1.end(), i) != selectedTanksPlayer1.end()) {
+                square.setFillColor(selectedTankColorPlayer1);
+                circle.setFillColor(selectedTankColorPlayer1);
+                gun.setFillColor(selectedTankColorPlayer1);
+            } else {
+                square.setFillColor(tankColorsPlayer1[i]);
+                circle.setFillColor(tankColorsPlayer1[i]);
+                gun.setFillColor(tankColorsPlayer1[i]);
+            }
+
+            // Set tank outline color for Player 1 window
+            square.setOutlineColor(tankOutlineColorPlayer1);
+            circle.setOutlineColor(tankOutlineColorPlayer1);
+            gun.setOutlineColor(tankOutlineColorPlayer1);
+
+            window1.draw(square);
+            window1.draw(circle);
+            window1.draw(gun);
+        }
+
+        window1.display();
+
         window2.clear();
 
-        if (window1.isOpen()) {
-            float P1X = window1.getSize().x / 4.f;
-            float P1Y = window1.getSize().y / 2.f;
-            circle1.setPosition(P1X, P1Y);
-            square1.setPosition(P1X - tankWidth / 2.f, P1Y - tankHeight / 2.f);
-            gun1.setPosition(P1X, P1Y);
-            window1.draw(square1);
-            window1.draw(circle1);
-            window1.draw(gun1);
-            window1.display();
+        for (size_t i = 0; i < tankPositions.size(); ++i) {
+            square.setPosition(tankPositions[i]);
+            circle.setPosition(tankPositions[i]);
+            gun.setPosition(tankPositions[i]);
+
+            // Apply tank rotation
+            square.setRotation(tankRotation);
+            circle.setRotation(tankRotation);
+            gun.setRotation(tankRotation);
+
+            // Set tank color
+            if (std::find(selectedTanksPlayer2.begin(), selectedTanksPlayer2.end(), i) != selectedTanksPlayer2.end()) {
+                square.setFillColor(selectedTankColorPlayer2);
+                circle.setFillColor(selectedTankColorPlayer2);
+                gun.setFillColor(selectedTankColorPlayer2);
+            } else {
+                square.setFillColor(tankColorsPlayer2[i]);
+                circle.setFillColor(tankColorsPlayer2[i]);
+                gun.setFillColor(tankColorsPlayer2[i]);
+            }
+
+            // Set tank outline color for Player 2 window
+            square.setOutlineColor(tankOutlineColorPlayer2);
+            circle.setOutlineColor(tankOutlineColorPlayer2);
+            gun.setOutlineColor(tankOutlineColorPlayer2);
+
+            window2.draw(square);
+            window2.draw(circle);
+            window2.draw(gun);
         }
 
-        if (window2.isOpen()) {
-            float P2X = window2.getSize().x * 3.f / 4.f;
-            float P2Y = window2.getSize().y / 2.f;
-            circle2.setPosition(P2X, P2Y);
-            square2.setPosition(P2X - tankWidth / 2.f, P2Y - tankHeight / 2.f);
-            gun2.setPosition(P2X, P2Y);
-            window2.draw(square2);
-            window2.draw(circle2);
-            window2.draw(gun2);
-            window2.display();
-        }
+        window2.display();
     }
+
+    // Prompt Player 1 to choose a color
+    std::cout << "Player 1, select a color (1-8): ";
+    int player1Choice;
+    std::cin >> player1Choice;
+    sf::Color player1Color = tankColorsPlayer1[player1Choice - 1];
+
+    // Prompt Player 2 to choose a color
+    std::cout << "Player 2, select a color (1-8): ";
+    int player2Choice;
+    std::cin >> player2Choice;
+    sf::Color player2Color = tankColorsPlayer2[player2Choice - 1];
 
     return 0;
 }
+
