@@ -79,13 +79,48 @@ struct Scoreboard {
     }
 };
 
+// void moveRight(std::vector<sf::Shape*> tankvec, sf::Vector2f tankpos ) {
+//     int size = tankvec.size();
+//     tankpos.x += 0.25;
 
+//     for (int i=0; i<size; i++) {
+//         tankvec.at(i)->move(sf::Vector2f(0.25,0));
+//     }
+// }
+
+// void moveLeft(std::vector<sf::Shape*> tankvec, sf::Vector2f tankpos ) {
+//     int size = tankvec.size();
+//     tankpos.x -= 0.25;
+
+//     for (int i=0; i<size; i++) {
+//         tankvec.at(i)->move(sf::Vector2f(-0.25,0));
+//     }
+// }
+
+// void moveUp(std::vector<sf::Shape*> tankvec, sf::Vector2f tankpos ) {
+//     int size = tankvec.size();
+//     tankpos.y -= 0.25;
+
+//     for (int i=0; i<size; i++) {
+//         tankvec.at(i)->move(sf::Vector2f(0,-0.25));
+//     }
+// }
+
+// void moveUp(std::vector<sf::Shape*> tankvec, sf::Vector2f tankpos ) {
+//     int size = tankvec.size();
+//     tankpos.y -= 0.25;
+
+//     for (int i=0; i<size; i++) {
+//         tankvec.at(i)->move(sf::Vector2f(0,-0.25));
+//     }
+// }
 
 int main()
 {
     const unsigned WINDOW_WIDTH = 2000;
     const unsigned WINDOW_HEIGHT = 1000;
     const float grid = 100;
+    const float bulletspeed = 2;
 
     int countdownValue = 3;
     bool countdownRunning = false;
@@ -133,25 +168,39 @@ int main()
         countdownWindow.draw(countdownText);
         countdownWindow.display();
     }
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+    sf::RenderWindow window3(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+
+    // Make 2 circles (will be tanks)
     
 
 
-
-    // Make 2 circles (will be tanks)
     std::vector<sf::Shape*> tanks;
 
-    sf::RectangleShape* tank1 = new sf::RectangleShape(sf::Vector2f(grid,grid));
-    sf::Vector2f tank1pos = sf::Vector2f(100,400);
-    tank1->setPosition(tank1pos);
-    tank1->setFillColor(sf::Color::Green);
-    tanks.push_back(tank1);
+    std::vector<sf::Shape*> tank1;
+    std::vector<sf::Shape*> tank2;
 
-    sf::RectangleShape* tank2 = new sf::RectangleShape(sf::Vector2f(grid,grid));
+    sf::RectangleShape* tank1body = new sf::RectangleShape(sf::Vector2f(grid,grid));
+    sf::Vector2f tank1pos = sf::Vector2f(100,400);
+    tank1body->setPosition(tank1pos);
+    tank1body->setFillColor(sf::Color::Green);
+    tank1.push_back(tank1body);
+    sf::RectangleShape* tank1gun = new sf::RectangleShape(sf::Vector2f(10,50));
+    tank1gun->setPosition(tank1pos);
+    tank1gun->setFillColor(sf::Color::Green);
+    tank1.push_back(tank1gun);
+
+    sf::RectangleShape* tank2body = new sf::RectangleShape(sf::Vector2f(grid,grid));
     sf::Vector2f tank2pos = sf::Vector2f(1800,400);
-    tank2->setPosition(tank2pos);
-    tank2->setFillColor(sf::Color::Cyan);
-    tanks.push_back(tank2);
+    tank2body->setPosition(tank2pos);
+    tank2body->setFillColor(sf::Color::Cyan);
+    tank2.push_back(tank2body);
+    sf::RectangleShape* tank2gun = new sf::RectangleShape(sf::Vector2f(10,50));
+    tank2gun->setPosition(sf::Vector2f(tank2pos.x-50,tank2pos.y+50));
+    tank2gun->setFillColor(sf::Color::Cyan);
+    tank2gun->rotate(270);
+    tank2.push_back(tank2gun);
+    
+
 
     // Make Obstacles
     std::vector<sf::Shape*> obstacles;
@@ -178,6 +227,12 @@ int main()
 
     Scoreboard scoreboard;
 
+    // Bullet Shape
+    sf::CircleShape bullet1(10);
+    bullet1.setFillColor(sf::Color::White);
+    sf::Vector2f bullet1pos = sf::Vector2f(tank1pos);
+    
+
     sf::Texture brickwall;
     brickwall.loadFromFile("brickwall.jpeg");
     
@@ -199,16 +254,17 @@ int main()
     bool leftOpen2 = true;
     bool upOpen2 = true;
     bool downOpen2 = true;
+
     
-    while (window.isOpen())
+    while (window3.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (window3.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                window.close();
+                window3.close();
         }
- 
+
         // Check if Tank 1 is allowed to move
         if ( !(tank1pos.x >= 0) ) {
             leftOpen1 = false;
@@ -256,25 +312,29 @@ int main()
         // Tank 1 Movement using WASD
         if (leftOpen1) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-                tank1->move(sf::Vector2f(-0.25,0));
+                tank1body->move(sf::Vector2f(-0.25,0));
+                tank1gun->move(sf::Vector2f(-0.25,0));
                 tank1pos.x -= 0.25;
             } 
         }
         if (rightOpen1) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-                tank1->move(sf::Vector2f(0.25,0));
+                tank1body->move(sf::Vector2f(0.25,0));
+                tank1gun->move(sf::Vector2f(0.25,0));
                 tank1pos.x += 0.25;
             } 
         }
         if (upOpen1) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-                tank1->move(sf::Vector2f(0,-0.25));
+                tank1body->move(sf::Vector2f(0,-0.25));
+                tank1gun->move(sf::Vector2f(0,-0.25));
                 tank1pos.y -= 0.25;
             } 
         }
         if (downOpen1) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-                tank1->move(sf::Vector2f(0,0.25));
+                tank1body->move(sf::Vector2f(0,0.25));
+                tank1gun->move(sf::Vector2f(0,0.25));
                 tank1pos.y += 0.25;
             }
         }
@@ -282,28 +342,39 @@ int main()
         // Tank 2 Movement using Arrow Keys
         if (leftOpen2) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
-                tank2->move(sf::Vector2f(-0.25,0));
+                tank2body->move(sf::Vector2f(-0.25,0));
+                tank2gun->move(sf::Vector2f(-0.25,0));
                 tank2pos.x -= 0.25;
             } 
         }
         if (rightOpen2) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
-                tank2->move(sf::Vector2f(0.25,0));
+                tank2body->move(sf::Vector2f(0.25,0));
+                tank2gun->move(sf::Vector2f(0.25,0));
                 tank2pos.x += 0.25;
             } 
         }
         if (upOpen2) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) {
-                tank2->move(sf::Vector2f(0,-0.25));
+                tank2body->move(sf::Vector2f(0,-0.25));
+                tank2gun->move(sf::Vector2f(0,-0.25));
                 tank2pos.y -= 0.25;
             } 
         }
         if (downOpen2) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) {
-                tank2->move(sf::Vector2f(0,0.25));
+                tank2body->move(sf::Vector2f(0,0.25));
+                tank2gun->move(sf::Vector2f(0,0.25));
                 tank2pos.y += 0.25;
             }
         }
+
+        // Shoot Bullet 1
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+            bullet1pos.x += bulletspeed;
+            bullet1.setPosition(bullet1pos);
+        }
+
 
         sf::Clock countdownClock;
         bool countdownRunning = true;
@@ -313,7 +384,7 @@ int main()
         countdownText.setFont(font);
         countdownText.setCharacterSize(32);
         countdownText.setFillColor(sf::Color::White);
-        countdownText.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+        countdownText.setPosition(window3.getSize().x / 2, window3.getSize().y / 2);
 
         if (countdownRunning) {
             sf::Time elapsed = countdownClock.getElapsedTime();
@@ -342,15 +413,26 @@ int main()
             }
         }
 
-        window.clear();
-        for (int i=0; i<l1; i++) {
-            window.draw(*tanks[i]);
+        window3.clear();
+        for (int i=0; i<tank1.size(); i++) {
+            window3.draw(*tank1[i]);
+            window3.draw(*tank2[i]);
         }
         for (int i=0; i<l2; i++) {
-            window.draw(*obstacles[i]);
+            window3.draw(*obstacles[i]);
         }
-        scoreboard.draw(window);
-        window.display();
+        scoreboard.draw(window3);
+
+        //Draw Bullet for Tank 1
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+            bullet1pos = tank1pos;
+            bullet1pos.x += bulletspeed;
+            bullet1.setPosition(bullet1pos);
+            window3.draw(bullet1);
+        }
+        
+
+        window3.display();
 
 
         Timer countdown(sf::seconds(3)); // 3 second countdown
@@ -365,16 +447,16 @@ int main()
             // Update countdown text and draw it
             int remainingSeconds = static_cast<int>(countdown.getRemainingTime().asSeconds());
             countdownText.setString(std::to_string(remainingSeconds));
-            window.clear();
-            window.draw(countdownText);
+            window3.clear();
+            window3.draw(countdownText);
         } else {
             // Game logic goes here
             // ...
             scoreboard.Player1Score++;
             scoreboard.Player2Score++;
             scoreboard.update();
-            window.clear();
-            scoreboard.draw(window);
+            window3.clear();
+            scoreboard.draw(window3);
         }
    
     }
