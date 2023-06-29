@@ -120,7 +120,9 @@ int main()
     const unsigned WINDOW_WIDTH = 2000;
     const unsigned WINDOW_HEIGHT = 1000;
     const float grid = 100;
-    const float bulletspeed = 2;
+    float bullet1speed = 1;
+    float bullet2speed = -1;
+    string winner = "";
 
     int countdownValue = 3;
     bool countdownRunning = false;
@@ -168,12 +170,41 @@ int main()
         countdownWindow.draw(countdownText);
         countdownWindow.display();
     }
+
+    // Color Selection vector
+    // std::vector<sf::Color> colors;
+    // colors.push_back(sf::Color::White); //0
+    // colors.push_back(sf::Color::Red); //1
+    // colors.push_back(sf::Color::Green); //2
+    // colors.push_back(sf::Color::Blue); //3
+    // colors.push_back(sf::Color::Yellow); //4
+    // colors.push_back(sf::Color::Magenta); //5
+    // colors.push_back(sf::Color::Cyan); //6
+
+    // sf::Color p1color;
+    // sf::Color p2color;
+
+    // sf::RenderWindow color1(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Player 1 Color Selector");
+    // while (color1.isOpen())
+    // {
+    //     sf::Event event;
+    //     while (color1.pollEvent(event))
+    //     {
+    //         if (event.type == sf::Event::Closed)
+    //             color1.close();
+    //     }
+
+    //     for (int i=0; i<colors.size(); i++) {
+            
+
+    //     }
+    // }
+
+
+
     sf::RenderWindow window3(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
 
-    // Make 2 circles (will be tanks)
-    
-
-
+    // Make 2 Tanks
     std::vector<sf::Shape*> tanks;
 
     std::vector<sf::Shape*> tank1;
@@ -185,8 +216,9 @@ int main()
     tank1body->setFillColor(sf::Color::Green);
     tank1.push_back(tank1body);
     sf::RectangleShape* tank1gun = new sf::RectangleShape(sf::Vector2f(10,50));
-    tank1gun->setPosition(tank1pos);
+    tank1gun->setPosition(sf::Vector2f(tank1pos.x+150,tank1pos.y+50));
     tank1gun->setFillColor(sf::Color::Green);
+    tank1gun->rotate(90);
     tank1.push_back(tank1gun);
 
     sf::RectangleShape* tank2body = new sf::RectangleShape(sf::Vector2f(grid,grid));
@@ -199,8 +231,6 @@ int main()
     tank2gun->setFillColor(sf::Color::Cyan);
     tank2gun->rotate(270);
     tank2.push_back(tank2gun);
-    
-
 
     // Make Obstacles
     std::vector<sf::Shape*> obstacles;
@@ -227,11 +257,18 @@ int main()
 
     Scoreboard scoreboard;
 
-    // Bullet Shape
-    sf::CircleShape bullet1(10);
+    // Bullet Shapes
+    sf::RectangleShape bullet1(sf::Vector2f(10,10));
     bullet1.setFillColor(sf::Color::White);
-    sf::Vector2f bullet1pos = sf::Vector2f(tank1pos);
-    
+    sf::Vector2f bullet1pos = sf::Vector2f(tank1pos.x+150,tank1pos.y+50);
+    bool bullet1fired = false;
+    int b1collisions = 0;
+
+    sf::RectangleShape bullet2(sf::Vector2f(10,10));
+    bullet2.setFillColor(sf::Color::White);
+    sf::Vector2f bullet2pos = sf::Vector2f(tank2pos.x-60,tank2pos.y+40);
+    bool bullet2fired = false;
+    int b2collisions = 0;
 
     sf::Texture brickwall;
     brickwall.loadFromFile("brickwall.jpeg");
@@ -369,20 +406,13 @@ int main()
             }
         }
 
-        // Shoot Bullet 1
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
-            bullet1pos.x += bulletspeed;
-            bullet1.setPosition(bullet1pos);
-        }
-
-
         sf::Clock countdownClock;
         bool countdownRunning = true;
         bool hereWeGoDisplayed = false;
 
         sf::Text countdownText;
         countdownText.setFont(font);
-        countdownText.setCharacterSize(32);
+        countdownText.setCharacterSize(300);
         countdownText.setFillColor(sf::Color::White);
         countdownText.setPosition(window3.getSize().x / 2, window3.getSize().y / 2);
 
@@ -425,12 +455,41 @@ int main()
 
         //Draw Bullet for Tank 1
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
-            bullet1pos = tank1pos;
-            bullet1pos.x += bulletspeed;
+            b1collisions = 0;
+            bullet1fired = true;
+            bullet1pos = sf::Vector2f(tank1pos.x+150,tank1pos.y+50);
+            bullet1.setPosition(bullet1pos);
+            bullet1speed = 1;
+        }
+        
+        if (bullet1fired && b1collisions<4) {
+            if (bullet1pos.x < 0 || bullet1pos.x > 2000) {
+                bullet1speed *= -1;
+                b1collisions++;
+            }
+            bullet1pos.x += bullet1speed;
             bullet1.setPosition(bullet1pos);
             window3.draw(bullet1);
         }
+
+        //Draw Bullet for Tank 2
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Slash)) {
+            b2collisions = 0;
+            bullet2fired = true;
+            bullet2pos = sf::Vector2f(tank2pos.x-60,tank2pos.y+40);
+            bullet2.setPosition(bullet2pos);
+            bullet2speed = -1;
+        }
         
+        if (bullet2fired && b2collisions<4) {
+            if (bullet2pos.x < 0 || bullet2pos.x > 2000) {
+                bullet2speed *= -1;
+                b2collisions++;
+            }
+            bullet2pos.x += bullet2speed;
+            bullet2.setPosition(bullet2pos);
+            window3.draw(bullet2);
+        }
 
         window3.display();
 
@@ -452,14 +511,64 @@ int main()
         } else {
             // Game logic goes here
             // ...
-            scoreboard.Player1Score++;
-            scoreboard.Player2Score++;
+            // if ( (tank2pos.x < bullet1pos.x+10 && bullet1pos.x < tank2pos.x+100) && (tank2pos.y < bullet1pos.y && bullet1pos.y+10 < tank2pos.y+100) ) {
+            //     scoreboard.Player1Score++;
+            //     bullet1speed = 0;
+            // }
+            
+            // scoreboard.Player2Score++;
+            // scoreboard.update();
+            // window3.clear();
+            // scoreboard.draw(window3);
+        }
+
+        if ( (tank2pos.x < bullet1pos.x+10 && bullet1pos.x < tank2pos.x+100) && (tank2pos.y < bullet1pos.y && bullet1pos.y+10 < tank2pos.y+100) ) {
+                scoreboard.Player1Score++;
+                bullet1speed = 0;
+        }
+
+        if ( (tank1pos.x+100 > bullet2pos.x && bullet2pos.x+10 > tank1pos.x) && (tank1pos.y < bullet2pos.y && bullet2pos.y+10 < tank1pos.y+100) ) {
+                scoreboard.Player2Score++;
+                bullet2speed = 0;
+        }
             scoreboard.update();
             window3.clear();
             scoreboard.draw(window3);
+
+
+        if (scoreboard.Player1Score>1000) {
+            winner += "1";
+            window3.close();
+        } else if (scoreboard.Player2Score>1000) {
+            winner += "2";
+            window3.close();
         }
-   
     }
 
+    sf::RenderWindow gameover(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "WINNER!");
+
+    sf::Font arial;
+    arial.loadFromFile("arial.ttf");
+
+    sf::Text endText;
+    endText.setFont(arial);
+    endText.setCharacterSize(100);
+    endText.setPosition(sf::Vector2f(250,400));
+    endText.setFillColor(sf::Color::White);
+    endText.setString("Congratulations Player " + winner + "! You won!");
+
+    while (gameover.isOpen())
+    {
+        sf::Event event;
+        while (gameover.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                gameover.close();
+        }
+
+        gameover.draw(endText);
+        gameover.display();
+   
+    }
     return 0;
 }
